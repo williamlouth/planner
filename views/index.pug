@@ -1,5 +1,28 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title} and goodbye
+	div(class="placer")
+		div(class="tasks")
+			for task in tasks
+				div(class="task")
+					div(class="task_text")
+						h1 #{task.name}
+						form(class="delete_task" action="/deleteTask" method="post") 
+							input(type="hidden" name=task value=task)
+							input(type="submit" value="X")
+
+					for child in task.children
+						div(class="child")
+							p #{child.name}
+							form(class="delete_child" action="/deleteSubTask" method="post")
+								input(type="hidden" name="child" value= child.position)
+								input(type="hidden" name="parent" value= task._id)
+								input(type="submit" value="X")
+					form(class="add_child" action="/addSubTask" method="post")
+						input(type="text" name="child")
+						input(type="hidden" name="parent" value=task)
+						input(type="submit" value="Add")
+			form(class="add_task" action="/addTask" method="post")
+				input(type="text" name="task")
+				input(type="submit" value="Add")
+

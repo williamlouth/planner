@@ -1,8 +1,59 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+
+div.placer {
+	width:100%;
+	background-color: white;
+	text-align:center;
 }
 
-a {
-  color: #00B7FF;
+div.tasks {
+	border: 5px #3B7080 solid;
+	background-color: #CFFFB3;
+	display:inline-block;
+	width: 75%;
+	height:auto;
+	margin: auto;
 }
+div.task {
+	background-color: #ADE25D;
+	border: 1px black  solid;
+	display:flex;
+	flex-direction:column;
+	width: 400px;
+	min-height: 400px;
+	margin: 20px;
+	float: left;
+}
+
+div.task_text {
+	border-bottom: 1px black  solid;
+	background-color: #FCEC52;
+	width:100%;
+	display:flex;
+	flex-direction:row;
+}
+div.task_text h1{
+	margin: auto;
+}
+div.task_text form{
+	float:right;
+}
+
+div.child{
+	width:100%;
+	display:flex;
+	flex-direction:row;
+}
+div.child p{
+	margin-left:10px;
+}
+div.child form{
+	margin:auto 0px  auto auto;
+}
+
+form.add_child{
+	margin:auto 0px  0px auto;
+	width:100%;
+	align-self:flex-end;
+}
+
+
