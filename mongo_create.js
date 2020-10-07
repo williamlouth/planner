@@ -70,6 +70,20 @@ function print_tasks(){
 }
 
 
+async function delete_child_task(child)
+{
+	const db = await MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true});
+	
+		var dbo = db.db("mydb");
+
+		var par = await dbo.collection("tasks").findOne({});
+
+		dbo.collection("tasks").updateOne({_id:par["_id"]}, { $pull: {children: child} } , function(err,added)
+			{
+				if (err) throw err;
+				db.close();
+			});
+}
 async function add_child_task(child)
 {
 	const db = await MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true});
@@ -85,13 +99,7 @@ async function add_child_task(child)
 				console.log(par);
 			});
 			*/
-		console.log("hi");
-		console.log(par);
-		console.log(par["_id"]);
-		console.log(child);
-		console.log("end");
-		//dbo.collection("tasks").updateOne({_id:par}, { $push: {children: child} } , function(err,added)
-		dbo.collection("tasks").updateOne({_id:par["_id"]}, { $push: {children: child} } , function(err,added)
+		await dbo.collection("tasks").updateOne({_id:par["_id"]}, { $push: {children: child} } , function(err,added)
 			{
 				if (err) throw err;
 				//console.log(added);
@@ -102,12 +110,18 @@ async function add_child_task(child)
 //drop_tasks();
 //add_tasks();
 var tasks = [
-    { name: 't1', description: 'Highway 1', position: 1, children: []},
-    { name: 't2', description: 'Highway 2', position: 2, children: []},
+    { name: 't1', description: 'Highway 1', position: 0, children: []},
+    { name: 't2', description: 'Highway 2', position: 1, children: []},
   ];
 //add_many_tasks(tasks);
 
-var task = { name: 't1a', description: 'Highway 1a', position: 1};
+var task = { name: 't0a', description: 'Highway 1a' };
 //add_child_task(task);
+//task = { name: 't1a', description: 'Highway 1a'};
+//add_child_task(task);
+//task = { name: 't2a', description: 'Highway 1a'};
+//add_child_task(task);
+
+//delete_child_task(task);
 //add_task(task);
 print_tasks();
