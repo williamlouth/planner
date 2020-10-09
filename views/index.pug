@@ -1,31 +1,53 @@
 extends layout
 
 block content
-	div(class="placer")
-		div(class="tasks")
-			for task in tasks
-				div(class="task")
-					div(class="task_text")
-						h1 #{task.name}
-						h2 #{task.position}
-						form(class="delete_task" action="/deleteTask" method="post") 
-							input(type="hidden" name="task_id" value=task._id)
-							input(type="submit" value="X")
+  div(class="placer")
+    div(class="tasks")
+      - var child_dom_id=0;
+      for task in tasks
+        div(class="task")
+          div(class="task_text")
+            h1 #{task.name}
+            p #{task.description}
+            //h2 #{task.position}
+            form(class="delete_task" action="/deleteTask" method="post") 
+              input(type="hidden" name="task_id" value=task._id)
+              input(type="submit" value="X")
 
-					for child in task.children
-						div(class="child")
-							p #{child.name}
-							form(class="delete_child" action="/deleteSubTask" method="post")
-								input(type="hidden" name="child" value= child)
-								input(type="hidden" name="parent" value= task._id)
-								input(type="submit" value="X")
-					form(class="add_child" action="/addSubTask" method="post")
-						input(type="text" name="name")
-						input(type="text" name="description")
-						input(type="hidden" name="parent" value=task._id)
-						input(type="submit" value="Add")
-			form(class="add_task" action="/addTask" method="post")
-				input(type="text" name="name")
-				input(type="text" name="description")
-				input(type="submit" value="Add")
+          for child in task.children
+            div(class="child")
+              -var cid = ++child_dom_id;
+              p(onclick="onPress(this.parentElement)") #{child.name}
+              p(id="description",Hidden) #{child.description}
+              form(class="delete_child" action="/deleteSubTask" method="post")
+                input(type="hidden" name="child" value= child)
+                input(type="hidden" name="parent" value= task._id)
+                input(type="submit" value="X")
+          form(class="add_child" action="/addSubTask" method="post")
+            input(type="text" name="name")
+            input(type="text" name="description")
+            input(type="hidden" name="parent" value=task._id)
+            input(type="submit" value="Add")
+      form(class="add_task" action="/addTask" method="post")
+        input(type="text" name="name")
+        input(type="text" name="description")
+        input(type="submit" value="Add")
+
+  script.
+    function onPress(child_id)
+    {
+      var pt = child_id.children;
+      alert(pt);
+      alert(pt[1].innerHTML);
+      alert(pt[1].outerHTML);
+      var text = document.getElementById(child_id);
+      if(text.style.display=="block")
+      {
+        text.style.display="none";
+      }
+      else
+      {
+        text.style.display="block";
+      }
+    }
 
