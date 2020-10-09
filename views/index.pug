@@ -18,7 +18,7 @@ block content
             div(class="child")
               -var cid = ++child_dom_id;
               p(onclick="onPress(this.parentElement)") #{child.name}
-              p(id="description",Hidden) #{child.description}
+              p(id="description",hidden) #{child.description}
               form(class="delete_child" action="/deleteSubTask" method="post")
                 input(type="hidden" name="child" value= child)
                 input(type="hidden" name="parent" value= task._id)
@@ -36,18 +36,14 @@ block content
   script.
     function onPress(child_id)
     {
-      var pt = child_id.children;
-      alert(pt);
-      alert(pt[1].innerHTML);
-      alert(pt[1].outerHTML);
-      var text = document.getElementById(child_id);
-      if(text.style.display=="block")
+      var pt = child_id.children[1];
+      if(pt.style.display=="block")
       {
-        text.style.display="none";
+        pt.style.display="none";
       }
       else
       {
-        text.style.display="block";
+        pt.style.display="block";
       }
     }
 
