@@ -26,6 +26,7 @@ MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true}, funct
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
+	console.log(req);
 	var tasks = await mongo_lib.returnTasks();
   	res.render('index', { title: 'Planner', tasks: tasks});
 });
