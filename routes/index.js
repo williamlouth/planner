@@ -7,39 +7,18 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/mydb";
 
 
-
-/*
-var tasks = []
-MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true}, function(err,db) 
-{
-	console.log("hiting database again");
-	var dbo = db.db("mydb");
-	dbo.collection("tasks").find({}).sort({position:1}).toArray(function(err,res)
-	{
-		if (err) throw err;
-		console.log("indexRouter");
-		console.log(res);
-		tasks = res;
-		console.log(tasks[0].children);
-		db.close();
-	});
-});
-*/
-
 /* GET home page. */
 router.get('/', async function(req, res, next) {
   	res.render('index', { title: 'Planner'});
 });
 
 router.post('/addTask', function(req, res, next) {
-
 	var task = {name: req.body.name, description: req.body.description, user_id: req.user.user_id};
 	mongo_lib.addTask(task);
   	res.redirect('back');
 });
 
 router.post('/addSubTask', function(req, res, next) {
-	//var child = JSON.parse(req.body.child);
 	var child = {name: req.body.name, description: req.body.description};
 	mongo_lib.addSubTask(req.body.parent,child);
   res.redirect('back');

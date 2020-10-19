@@ -6,7 +6,6 @@ async function addSubTask(parent_id,child)
 {
 	const db = await MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true});
 	var dbo = db.db("mydb");
-	
 	var add = await dbo.collection("tasks").updateOne({_id:ObjectId(parent_id)}, { $push: {"children": child} } );
 
 }
@@ -26,7 +25,6 @@ async function addTask(task)
 	completeTask.children = [];
 	
 	var add = await dbo.collection("tasks").insertOne(completeTask);
-
 }
 
 async function deleteTask(task_id)
@@ -42,25 +40,7 @@ async function deleteTask(task_id)
 	var upd = {$inc: {position: -1} };
 	var update = await dbo.collection("tasks").updateMany(query,upd);
 
-	console.log(query);
-	console.log(upd);
-
-	//var completeTask = task;
-
-	//completeTask.position = pos;
-	//completeTask.children = [];
-
-	/*
-	var th = await dbo.collection("tasks").find({}).toArray(function(err,res)
-		{
-			if (err) throw err;
-			console.log(res);
-			db.close();
-		});
-		*/
-	
 	var del = await dbo.collection("tasks").deleteOne({_id:ObjectId(task_id)});
-
 }
 
 async function deleteSubTask(parent_id,child)
@@ -70,22 +50,10 @@ async function deleteSubTask(parent_id,child)
 	
 	var del = await dbo.collection("tasks").updateOne({_id:ObjectId(parent_id)}, { $pull: {"children": child} } );
 
-	/*
-	var t = await dbo.collection("tasks").findOne({position:1});
-
-	dbo.collection("tasks").find({}).toArray(function(err,res)
-		{
-			if (err) throw err;
-			console.log(res);
-			db.close();
-		});
-		*/
 }
 
 async function returnTasks(user_id)
 {
-
-	
 	var db = await  MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true});
 	var dbo = db.db("mydb");
 	var query = { user_id: user_id };

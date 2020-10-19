@@ -12,7 +12,6 @@ function drop_tasks(){
 	    		if (delOK) console.log("Collection deleted");
 	    		db.close();
 	  	});
-	
 	});
 }
 
