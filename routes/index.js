@@ -28,7 +28,7 @@ MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true}, funct
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
-  	res.render('index', { title: 'Planner', tasks: tasks});
+  	res.render('index', { title: 'Planner'});
 });
 
 router.post('/addTask', function(req, res, next) {
