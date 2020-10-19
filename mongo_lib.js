@@ -82,13 +82,14 @@ async function deleteSubTask(parent_id,child)
 		*/
 }
 
-async function returnTasks()
+async function returnTasks(user_id)
 {
 
 	
 	var db = await  MongoClient.connect(url,{useNewUrlParser: true, useUnifiedTopology: true});
 	var dbo = db.db("mydb");
-	var tasks =await dbo.collection("tasks").find({}).sort({position:1}).toArray();
+	var query = { user_id: user_id };
+	var tasks =await dbo.collection("tasks").find(query).sort({position:1}).toArray();
 	return tasks;
 }
 

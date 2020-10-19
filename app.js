@@ -1,48 +1,65 @@
 var createError = require('http-errors');
-var express = require('express');
+const express = require('express');
 const session = require('express-session');
-var path = require('path');
+const path = require('path');
+var passport = require('passport');
+var Auth0Strategy = require('passport-auth0');
 //var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongo = require('mongodb')
-var okta = require("@okta/okta-sdk-nodejs");
-const { ExpressOIDC } = require('@okta/oidc-middleware');
+const { auth } = require('express-openid-connect');
 
+var userInViews = require('./lib/middleware/userInViews');
+
+var authRouter = require('./routes/auth');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 require('dotenv').config()
 
+var strategy = new Auth0Strategy(
+  {
+    domain: process.env.AUTH0_DOMAIN,
+    clientID: process.env.AUTH0_CLIENT_ID,
+    clientSecret: process.env.AUTH0_CLIENT_SECRET,
+    callbackURL:
+      process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/callback'
+  },
+  function (accessToken, refreshToken, extraParams, profile, done) {
+    // accessToken is the token to call Auth0 API (not needed in the most cases)
+    // extraParams.id_token has the JSON Web Token
+    // profile has all the information from the user
+    return done(null, profile);
+  }
+);
+
+passport.use(strategy);
+
 var app = express();
-var oktaClient = new okta.Client({
-  orgUrl: 'https://dev-902351.okta.com',
-  token: '00yDSMvhdwZXG3Kwu0MdW8vlUdOnaUOR0Y357VikJ5'
-});
 
-const oidc = new ExpressOIDC({
-  issuer: process.env.OIDC_ISSUER,
-  client_id: process.env.OIDC_CLIENT_ID,
-  client_secret: process.env.OIDC_CLIENT_SECRET,
-  //redirect_uri: `${process.env.BASE_URL}/users/callback`,
-  //redirect_uri: `${process.env.BASE_URL}/authorization-code/callback`,
-  loginRedirectUri: `${process.env.BASE_URL}/authorization-code/callback`,
-  appBaseUrl: process.env.BASE_URL,
-  scope: 'openid profile'
-});
+var sess = {
+	secret: process.env.SESSION_SECRET,
+	cookie: {},
+	resave: false,
+	saveUninitialized: true
+};
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: true,
-  saveUninitialized: false,
-  cookie:{sameSite:'strict'}
-}));
-app.use(oidc.router);
+if (app.get('env') === 'production') {
+  // Use secure cookies in production (requires SSL/TLS)
+  sess.cookie.secure = true;
 
+  // Uncomment the line below if your application is behind a proxy (like on Heroku)
+  // or if you're encountering the error message:
+  // "Unable to verify authorization request state"
+  // app.set('trust proxy', 1);
+}
+
+app.use(session(sess));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
-
-
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
@@ -52,6 +69,54 @@ app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+
+
+/*
+const config = {
+	authRequired: false,
+	auth0Logout: true,
+	baseURL: process.env.BASE_URL,
+	clientID: process.env.CLIENT_ID,
+	issuerBaseURL: process.env.ISSUER_BASE_URL,
+	secret: process.env.SECRET,
+};
+const port = process.env.PORT || 3000;
+if (!config.baseURL && !process.env.BASE_URL && process.env.PORT && process.env.NODE_ENV !== 'production') {
+  config.baseURL = `http://localhost:${port}`;
+}
+
+app.use(auth(config));
+*/
+
+/*
+app.use(function (req, res, next) {
+  res.locals.user = req.oidc.user;
+  next();
+});
+*/
+
+
+/*
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: false,
+  cookie:{sameSite:'strict'}
+}));
+*/
+
+
+
+// view engine setup
+
+
 /*
 app.set('etag', false);
 app.use((req, res, next) => {
@@ -60,9 +125,10 @@ app.use((req, res, next) => {
 });
 */
 
-//app.use('/',indexRouter);
-app.use('/',oidc.ensureAuthenticated(), indexRouter);
-app.use('/users', usersRouter);
+app.use(userInViews());
+app.use('/',authRouter);
+app.use('/', indexRouter);
+app.use('/user', usersRouter);
 app.use('/addTask', indexRouter);
 app.use('/addSubTask', indexRouter);
 app.use('/deleteSubTask', indexRouter);
@@ -75,6 +141,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -82,10 +149,6 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});
-oidc.on('error', err => {
-	console.log("oidc error");
-	console.log(err);
 });
 
 module.exports = app;

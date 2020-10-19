@@ -1,0 +1,63 @@
+extends layout
+
+block content
+  div(class="placer")
+    div(class="tasks")
+      - var child_dom_id=0;
+      for task in tasks
+        div(class="task")
+          div(class="task_text")
+            h1 #{task.name}
+            p #{task.description}
+            //h2 #{task.position}
+            form(class="delete_task" action="/deleteTask" method="post") 
+              input(type="hidden" name="task_id" value=task._id)
+              input(type="submit" value="X")
+
+          for child in task.children
+            div(class="child")
+              -var cid = ++child_dom_id;
+              p(onclick="onPress(this.parentElement)") #{child.name}
+              p(id="description",hidden) #{child.description}
+              form(class="delete_child" action="/deleteSubTask" method="post")
+                input(type="hidden" name="child" value= child)
+                input(type="hidden" name="parent" value= task._id)
+                input(type="submit" value="X")
+          form(class="add_child" action="/addSubTask" method="post")
+            input(type="text" name="name")
+            input(type="text" name="description")
+            input(type="hidden" name="parent" value=task._id)
+            input(type="submit" value="Add")
+      form(class="add_task" action="/addTask" method="post")
+        input(type="text" name="name")
+        input(type="text" name="description")
+        input(type="submit" value="Add")
+
+  script.
+    function onPress(child_id)
+    {
+      var pt = child_id.children[1];
+      if(pt.style.display=="block")
+      {
+        pt.style.display="none";
+      }
+      else
+      {
+        pt.style.display="block";
+      }
+    }
+
+
+
+
+  br
+  .w3-container
+    .w3-card-4
+      header
+      h1 Welcome #{user.nickname}
+      img(src=user.picture)
+      h2 User profile
+      p This is the content of <code>req.user</code>.
+      p Note: <code>_raw</code> and <code>_json</code> properties have been ommited.
+      pre
+        code #{userProfile}
