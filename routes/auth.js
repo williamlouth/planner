@@ -33,6 +33,8 @@ router.get('/callback', function (req, res, next) {
 router.get('/logout', (req, res) => {
   req.logout();
 
+	console.log("here in logout");
+	console.log(req.hostname);
   var returnTo = req.protocol + '://' + req.hostname;
   var port = req.connection.localPort;
   if (port !== undefined && port !== 80 && port !== 443) {
